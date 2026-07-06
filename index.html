@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTU-ITR Bus Tracking System</title>
+
+  <!-- MapLibre GL JS (MapCN engine) -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ========== LOADING SCREEN ========== -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loader-container">
+      <div class="loader-bus"><i class="fas fa-bus"></i></div>
+      <div class="loader-bar"><div class="loader-fill"></div></div>
+      <p class="loader-text">Loading GTU-ITR Bus Tracking...</p>
+    </div>
+  </div>
+
+  <!-- ========== TOAST CONTAINER ========== -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ================================================================================== -->
+  <!-- PAGE 0: LOGO LANDING / LOGIN PAGE                                                  -->
+  <!-- ================================================================================== -->
+  <main id="page-logo" class="page active">
+    <div class="logo-landing">
+
+      <!-- Decorative floating shapes -->
+      <div class="landing-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+      </div>
+
+      <!-- Animated bus driving across bottom -->
+      <div class="landing-road">
+        <div class="road-surface"></div>
+        <div class="road-bus"><i class="fas fa-bus"></i></div>
+      </div>
+
+      <!-- Main content -->
+      <div class="landing-content">
+        <div class="landing-logo-wrapper">
+          <div class="landing-logo-glow"></div>
+          <div class="landing-logo">
+            <img src="logo.svg" alt="GTU-ITR Logo" class="landing-logo-img">
+          </div>
+        </div>
+
+        <h1 class="landing-title">GTU-ITR College</h1>
+        <p class="landing-subtitle">Real-Time Bus Tracking System</p>
+        <p class="landing-desc">Track your college buses live, know exact arrival times, and travel with confidence.</p>
+
+        <!-- Stats -->
+        <div class="landing-stats">
+          <div class="landing-stat">
+            <span class="stat-icon"><i class="fas fa-route"></i></span>
+            <div><span class="stat-num">4</span><span class="stat-label">Routes</span></div>
+          </div>
+          <div class="landing-stat">
+            <span class="stat-icon"><i class="fas fa-bus"></i></span>
+            <div><span class="stat-num">4</span><span class="stat-label">Active Buses</span></div>
+          </div>
+          <div class="landing-stat">
+            <span class="stat-icon"><i class="fas fa-map-marker-alt"></i></span>
+            <div><span class="stat-num">36</span><span class="stat-label">Stops</span></div>
+          </div>
+          <div class="landing-stat">
+            <span class="stat-icon"><i class="fas fa-users"></i></span>
+            <div><span class="stat-num">Live</span><span class="stat-label">Tracking</span></div>
+          </div>
+        </div>
+
+        <div class="landing-actions">
+          <button class="btn btn-primary landing-btn" id="landing-student-btn">
+            <i class="fas fa-graduation-cap"></i> Student Dashboard
+          </button>
+          <button class="btn btn-outline landing-btn" id="landing-driver-btn">
+            <i class="fas fa-user-shield"></i> Driver Login
+          </button>
+        </div>
+
+        <div class="landing-buses">
+          <span class="landing-bus-tag"><i class="fas fa-bus"></i> Route 1: Mehsana</span>
+          <span class="landing-bus-tag"><i class="fas fa-bus"></i> Route 2: Palanpur</span>
+          <span class="landing-bus-tag"><i class="fas fa-bus"></i> Route 3: Ahmedabad</span>
+          <span class="landing-bus-tag"><i class="fas fa-bus"></i> Route 4: Patan</span>
+        </div>
+      </div>
+
+      <div class="landing-footer">
+        <p>&copy; 2026 GTU-ITR College. All rights reserved.</p>
+        <p class="landing-powered">Powered by MapCN &middot; MapLibre GL</p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========== NAVIGATION ========== -->
+  <nav id="main-nav" class="main-nav">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <i class="fas fa-bus"></i>
+        <span>GTU-ITR Bus Tracking</span>
+      </div>
+      <div class="nav-center" id="nav-center">
+        <div class="live-clock" id="live-clock">
+          <i class="far fa-clock"></i>
+          <span id="clock-display">--:--:--</span>
+        </div>
+        <div class="weather-widget" id="weather-widget">
+          <i class="fas fa-sun"></i>
+          <span>32°C</span>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <button class="nav-btn theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon"></i>
+        </button>
+        <div class="notification-wrapper">
+          <button class="nav-btn notification-btn" id="notification-btn" aria-label="Notifications">
+            <i class="fas fa-bell"></i>
+            <span class="badge" id="notif-badge">0</span>
+          </button>
+          <div class="notif-panel" id="notif-panel">
+            <div class="notif-panel-header">
+              <h3><i class="fas fa-bell"></i> Notifications</h3>
+              <div class="notif-panel-actions">
+                <button class="notif-action-btn" id="notif-mark-read" title="Mark all as read"><i class="fas fa-check-double"></i></button>
+                <button class="notif-action-btn" id="notif-clear-all" title="Clear all"><i class="fas fa-trash-alt"></i></button>
+              </div>
+            </div>
+            <div class="notif-panel-body" id="notif-panel-body">
+              <div class="notif-empty">
+                <i class="fas fa-bell-slash"></i>
+                <p>No notifications yet</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="profile-dropdown">
+          <button class="nav-btn profile-btn" id="profile-btn">
+            <i class="fas fa-user-circle"></i>
+          </button>
+          <div class="dropdown-menu" id="dropdown-menu">
+            <a href="#" class="dropdown-item" data-page="student"><i class="fas fa-graduation-cap"></i> Student View</a>
+            <a href="#" class="dropdown-item" data-page="driver-login"><i class="fas fa-user"></i> Driver Login</a>
+            <a href="#" class="dropdown-item" data-page="admin"><i class="fas fa-shield-alt"></i> Admin</a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+        <button class="nav-btn menu-toggle" id="menu-toggle" aria-label="Menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== SIDEBAR (Mobile) ========== -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <i class="fas fa-bus"></i>
+      <span>GTU-ITR</span>
+      <button class="sidebar-close" id="sidebar-close">&times;</button>
+    </div>
+    <div class="sidebar-body">
+      <a href="#" class="sidebar-item active" data-page="student">
+        <i class="fas fa-graduation-cap"></i> Student Dashboard
+      </a>
+      <a href="#" class="sidebar-item" data-page="driver-login">
+        <i class="fas fa-user"></i> Driver Login
+      </a>
+      <a href="#" class="sidebar-item" data-page="driver-dashboard">
+        <i class="fas fa-tachometer-alt"></i> Driver Dashboard
+      </a>
+      <a href="#" class="sidebar-item" data-page="admin">
+        <i class="fas fa-shield-alt"></i> Admin Dashboard
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="online-indicator" id="online-indicator">
+        <span class="dot online"></span> Online
+      </div>
+    </div>
+  </aside>
+
+
+  <!-- ================================================================================== -->
+  <!-- PAGE 1: STUDENT DASHBOARD                                                         -->
+  <!-- ================================================================================== -->
+  <main id="page-student" class="page">
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1>Track Your College Bus <span class="gradient-text">Live</span></h1>
+          <p>Real-time GPS tracking for GTU-ITR college buses. Know exactly where your bus is and when it will arrive.</p>
+        </div>
+        <div class="hero-search">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-bus" placeholder="Search bus by number or route...">
+          </div>
+          <div class="route-select-group">
+            <select id="route-select" class="route-select">
+              <option value="">All Routes</option>
+              <option value="1">Route 1: Mehsana → GTU-ITR (GPERI)</option>
+              <option value="2">Route 2: Palanpur → GTU-ITR (GPERI)</option>
+              <option value="3">Route 3: Ahmedabad → GTU-ITR (GPERI)</option>
+              <option value="4">Route 4: Patan → GTU-ITR (GPERI)</option>
+            </select>
+            <button class="btn btn-primary" id="view-live-btn">
+              <i class="fas fa-map-marker-alt"></i> View Live Location
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+      <div class="stat-card">
+        <div class="stat-icon routes"><i class="fas fa-route"></i></div>
+        <div class="stat-info">
+          <span class="stat-number" data-target="4">0</span>
+          <span class="stat-label">Total Routes</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon active"><i class="fas fa-bus"></i></div>
+        <div class="stat-info">
+          <span class="stat-number" data-target="4">0</span>
+          <span class="stat-label">Active Buses</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon students"><i class="fas fa-users"></i></div>
+        <div class="stat-info">
+          <span class="stat-number" data-target="1250">0</span>
+          <span class="stat-label">Students</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon eta"><i class="fas fa-clock"></i></div>
+        <div class="stat-info">
+          <span class="stat-number" id="eta-display">--</span>
+          <span class="stat-label">Est. Arrival</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map + Info Section -->
+    <section class="map-section">
+      <div class="map-container" style="position:relative">
+        <div id="student-map" class="map"></div>
+        <div class="map-loader" id="student-map-loader">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Loading map...</span>
+        </div>
+        <div class="gps-status" id="gps-status">
+          <span class="dot live"></span> GPS Connected
+        </div>
+        <!-- OSRM Route Picker -->
+        <div class="osrm-panel" id="osrm-panel">
+          <div class="osrm-panel-header">
+            <i class="fas fa-route"></i>
+            <span>Route Alternatives</span>
+          </div>
+          <div class="osrm-panel-body" id="osrm-panel-body">
+            <div class="osrm-loading">
+              <i class="fas fa-spinner fa-spin"></i> Loading routes...
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info-card" id="bus-info-card">
+        <div class="info-header">
+          <h3><i class="fas fa-bus"></i> <span id="info-bus-number">Bus GTU-101</span></h3>
+          <span class="status-badge active" id="info-bus-status">Active</span>
+        </div>
+        <div class="info-body">
+          <div class="info-row">
+            <span class="info-label"><i class="fas fa-user"></i> Driver</span>
+            <span class="info-value" id="info-driver">Rahul Sharma</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label"><i class="fas fa-route"></i> Route</span>
+            <span class="info-value" id="info-route">Mehsana → GTU-ITR (GPERI)</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label"><i class="fas fa-tachometer-alt"></i> Speed</span>
+            <span class="info-value" id="info-speed">0 km/h</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label"><i class="fas fa-clock"></i> ETA</span>
+            <span class="info-value" id="info-eta">-- min</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label"><i class="fas fa-history"></i> Updated</span>
+            <span class="info-value" id="info-updated">Just now</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label"><i class="fas fa-users"></i> Occupancy</span>
+            <div class="occupancy-bar">
+              <div class="occupancy-fill" id="occupancy-fill" style="width:45%"></div>
+              <span class="occupancy-text" id="occupancy-text">22 / 50</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Panel -->
+    <section class="bottom-panel">
+      <div class="panel-left">
+        <h4><i class="fas fa-map-signs"></i> Upcoming Stops</h4>
+        <ul class="stops-list" id="stops-list">
+          <li class="stop-item current"><span class="stop-dot"></span> GTU-ITR College <span class="stop-dist">Arriving</span></li>
+          <li class="stop-item"><span class="stop-dot"></span> Chandkheda <span class="stop-dist">2 km</span></li>
+          <li class="stop-item"><span class="stop-dot"></span> Visat Junction <span class="stop-dist">5 km</span></li>
+        </ul>
+      </div>
+      <div class="panel-right">
+        <div class="progress-section">
+          <div class="progress-header">
+            <span>Journey Progress</span>
+            <span id="progress-percent">45%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width:45%"></div>
+          </div>
+          <div class="progress-labels">
+            <span>Start</span>
+            <span>Destination</span>
+          </div>
+        </div>
+        <div class="distance-info">
+          <i class="fas fa-road"></i>
+          <span>Distance Remaining: <strong id="distance-remaining">12.5 km</strong></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+  <!-- ================================================================================== -->
+  <!-- PAGE 2: DRIVER LOGIN                                                              -->
+  <!-- ================================================================================== -->
+  <main id="page-driver-login" class="page">
+    <div class="login-wrapper">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="login-icon"><i class="fas fa-user-shield"></i></div>
+          <h2>Driver Login</h2>
+          <p>Enter your credentials to start tracking</p>
+        </div>
+        <form id="driver-login-form" class="login-form" autocomplete="off">
+          <div class="form-group">
+            <label for="driver-id"><i class="fas fa-id-card"></i> Driver ID</label>
+            <input type="text" id="driver-id" placeholder="Enter your Driver ID" required>
+          </div>
+          <div class="form-group">
+            <label for="driver-password"><i class="fas fa-lock"></i> Password</label>
+            <input type="password" id="driver-password" placeholder="Enter your password" required>
+            <button type="button" class="password-toggle" id="password-toggle"><i class="fas fa-eye"></i></button>
+          </div>
+          <div class="form-group">
+            <label for="driver-route-select"><i class="fas fa-route"></i> Bus Route</label>
+            <select id="driver-route-select" required>
+              <option value="">Select Route</option>
+              <option value="1">Route 1: Mehsana → GTU-ITR (GPERI)</option>
+              <option value="2">Route 2: Palanpur → GTU-ITR (GPERI)</option>
+              <option value="3">Route 3: Ahmedabad → GTU-ITR (GPERI)</option>
+              <option value="4">Route 4: Patan → GTU-ITR (GPERI)</option>
+            </select>
+          </div>
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="remember-me">
+              <span class="checkmark"></span>
+              Remember Me
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary login-btn">
+            <i class="fas fa-sign-in-alt"></i> Login
+          </button>
+          <div class="login-footer">
+            <a href="#" id="forgot-password">Forgot Password?</a>
+          </div>
+        </form>
+        <div class="demo-credentials">
+          <p><i class="fas fa-info-circle"></i> Demo: Use any ID (min 4 chars) / Password: <strong>1234</strong></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+
+  <!-- ================================================================================== -->
+  <!-- PAGE 3: DRIVER DASHBOARD                                                          -->
+  <!-- ================================================================================== -->
+  <main id="page-driver-dashboard" class="page">
+    <!-- Driver Header -->
+    <section class="driver-header">
+      <div class="driver-info-left">
+        <div class="driver-avatar" id="driver-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="driver-meta">
+          <h3 id="driver-name-display">Rahul Sharma</h3>
+          <p id="driver-bus-display">Bus GTU-101 · Route 1: Mehsana → GTU-ITR (GPERI)</p>
+        </div>
+      </div>
+      <div class="driver-status">
+        <div class="status-indicator" id="tracking-status">
+          <span class="dot offline"></span>
+          <span>Offline</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Driver Controls -->
+    <section class="driver-controls">
+      <button class="btn btn-success" id="start-tracking-btn">
+        <i class="fas fa-play"></i> Start Tracking
+      </button>
+      <button class="btn btn-danger" id="stop-tracking-btn" disabled>
+        <i class="fas fa-stop"></i> Stop Tracking
+      </button>
+      <button class="btn btn-outline" id="share-location-btn" disabled>
+        <i class="fas fa-share-alt"></i> Share Live Location
+      </button>
+      <button class="btn btn-warning" id="emergency-btn">
+        <i class="fas fa-exclamation-triangle"></i> Emergency
+      </button>
+    </section>
+
+    <!-- Driver Coordinates -->
+    <section class="driver-coords">
+      <div class="coord-card">
+        <span class="coord-label">Latitude</span>
+        <span class="coord-value" id="driver-lat">--</span>
+      </div>
+      <div class="coord-card">
+        <span class="coord-label">Longitude</span>
+        <span class="coord-value" id="driver-lng">--</span>
+      </div>
+      <div class="coord-card">
+        <span class="coord-label">Speed</span>
+        <span class="coord-value" id="driver-speed">0 km/h</span>
+      </div>
+      <div class="coord-card">
+        <span class="coord-label">Heading</span>
+        <span class="coord-value" id="driver-heading">--°</span>
+      </div>
+      <div class="coord-card">
+        <span class="coord-label">Accuracy</span>
+        <span class="coord-value" id="driver-accuracy">-- m</span>
+      </div>
+      <div class="coord-card">
+        <span class="coord-label">Battery</span>
+        <span class="coord-value" id="driver-battery"><i class="fas fa-battery-three-quarters"></i> 75%</span>
+      </div>
+    </section>
+
+    <!-- Driver Map -->
+    <section class="map-section">
+      <div class="map-container">
+        <div id="driver-map" class="map"></div>
+        <div class="map-loader" id="driver-map-loader">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Loading map...</span>
+        </div>
+      </div>
+      <div class="driver-route-info">
+        <h4><i class="fas fa-info-circle"></i> Current Trip</h4>
+        <div class="trip-detail">
+          <span>From:</span>
+          <strong id="driver-route-from">Mehsana</strong>
+        </div>
+        <div class="trip-detail">
+          <span>To:</span>
+          <strong id="driver-route-to">GTU-ITR College</strong>
+        </div>
+        <div class="trip-detail">
+          <span>Last Sync:</span>
+          <strong id="driver-last-sync">--</strong>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+  <!-- ================================================================================== -->
+  <!-- PAGE 4: ADMIN DASHBOARD                                                           -->
+  <!-- ================================================================================== -->
+  <main id="page-admin" class="page">
+    <div class="admin-header">
+      <h2><i class="fas fa-shield-alt"></i> Admin Dashboard</h2>
+      <p>Manage and monitor all college buses in real-time</p>
+    </div>
+
+    <!-- Admin Bus Cards -->
+    <section class="admin-buses" id="admin-buses">
+      <!-- Generated by JS -->
+    </section>
+
+    <!-- Admin Map -->
+    <section class="map-section full-width">
+      <div class="map-container">
+        <div id="admin-map" class="map"></div>
+        <div class="map-loader" id="admin-map-loader">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Loading map...</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+  <!-- ========== SCRIPTS ========== -->
+  <script src="script.js"></script>
+</body>
+</html>

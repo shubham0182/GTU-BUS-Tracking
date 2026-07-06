@@ -1,0 +1,10 @@
+{
+  "name": "gtu-itr-bus-tracking",
+  "version": "2.0.0",
+  "private": true,
+  "description": "GTU-ITR College Real-Time Bus Tracking System",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js --watch"
+  }
+}
